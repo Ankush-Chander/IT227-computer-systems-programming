@@ -1,6 +1,6 @@
-# IT227 - Computer System Engineering | DAIICT
+# IT227 - Computer Systems Programming  | DAIICT
 
-Welcome to the course on Computer System Engineering.
+Welcome to the course on Computer Systems Programming.
 
 ---
 
