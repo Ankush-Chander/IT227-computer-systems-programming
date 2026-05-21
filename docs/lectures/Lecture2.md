@@ -22,7 +22,7 @@ type ls
 ---
 #### OS abstractions
 
-![Image](Professional/ProfessionalProjects/DAIICT%20academics/IT603/lectures/images/os_abstractions.png) 
+![Image](../images/os_abstractions.png) 
 
 ---
 #### Processes(1) 
@@ -67,7 +67,7 @@ nohup /usr/bin/vlc &
 kill -SIGKILL $pid
 ```
 
-![Image|410](Professional/ProfessionalProjects/DAIICT%20academics/IT603/lectures/images/kill_process.jpg )
+![Image|410](../images/kill_process.jpg )
 
 ---
 
