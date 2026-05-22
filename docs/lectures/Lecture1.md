@@ -52,20 +52,19 @@
 
 #### Kernel 
 Kernel is the most important part of operating system that talks to hardware. It is loaded into main memory when the system is booted and resides there till it"s shutdown. 
-Kernel is responsible of following:
-1. **Process scheduling**
-   Linux like most modern operating systems is a premptive multitasking  operating system
-   *Multitasking*: because at any given point of time multiple processes sit in main memory and get interleaved access to CPUs.
-   *Preemptive*: because processes doesn't get to decide how long they will execute. OS/kernel decided when they will be scheduled in and out of CPU.
-2. **Memory management:** Main memory is a limited resource and kernel makes sure that processed get access to main memory in an equitable and efficient manner. By providing  *virtual memory*
-   OS ensure 2 things:
-   i) Processes doesn't interfere with other memory allotted to other processes   
-   ii) Programs can be *larger than the main memory* itself and they can be loaded partially into main memory
-	 
-3. **Provisioning of file system**: OS/kernel provides abstraction over storage in terms of files. Processes can create.modify/delete/access files without worrying about the underlying storage.
-4. Creation and termination of processes: Kernel can load a new program into the main memory, provide it resources, then when the process is done executing may free the resources used by that process 
-5. **Networking**: Kernel facilitates the movement of network packets on behalf of processes.  
-6. **Provision of system call API interface**(What this course is mostly about)
+Kernel is responsible of following:  
+1. **Process scheduling**  
+   Linux like most modern operating systems is a premptive multitasking  operating system  
+   *Multitasking*: because at any given point of time multiple processes sit in main memory and get interleaved access to CPUs.  
+   *Preemptive*: because processes doesn't get to decide how long they will execute. OS/kernel decided when they will be scheduled in and out of CPU.  
+2. **Memory management:** Main memory is a limited resource and kernel makes sure that processed get access to main memory in an equitable and efficient manner. By providing  *virtual memory*  
+   OS ensure 2 things:  
+	   i) Processes doesn't interfere with other memory allotted to other processes     
+	   ii) Programs can be *larger than the main memory* itself and they can be loaded partially into main memory  	 
+3. **Provisioning of file system**: OS/kernel provides abstraction over storage in terms of files. Processes can create.modify/delete/access files without worrying about the underlying storage.  
+4. **Creation and termination of processes**: Kernel can load a new program into the main memory, provide it resources, then when the process is done executing may free the resources used by that process   
+5. **Networking**: Kernel facilitates the movement of network packets on behalf of processes.    
+6. **Provision of system call API interface**(What this course is mostly about)  
 
 Refer code example: [[../code/demo_explaination.md]]
 
@@ -75,11 +74,11 @@ Refer code example: [[../code/demo_explaination.md]]
 ---
 
 ### GUI vs CLI
-Different ways to launch programs:
-1. *via GUI*(Graphical User Interface)
-	When you double click a program(like vlc), it"s `.desktop` file is referred (`/usr/share/applications`). From there OS knows which program is to be run in order to run that application.
-2. via CLI (Command Line Interface) 
-	OS provides user [[Shell]] which is a program that executes other programs in response to text input. Shell interprets and executes the command.
+Different ways to launch programs:  
+1. *via GUI*(Graphical User Interface)  
+	When you double click a program(like vlc), it"s `.desktop` file is referred (`/usr/share/applications`). From there OS knows which program is to be run in order to run that application.  
+2. via CLI (Command Line Interface)   
+	OS provides user [[Shell]] which is a program that executes other programs in response to text input. Shell interprets and executes the command.  
 ---
 
 
@@ -120,6 +119,27 @@ ls README.txt # command + argument
 ls -lh README.txt # command + option + argument
 ```
 
+
+#### Working with commands(1)
+A command can be one of four different things:
+1. **An executable program** compiled binaries such as programs written in C/C++/Java  or programs written in scripting languages such as the shell, perl, python, ruby, etc.
+2. A command **built into the shell** itself. 
+3. **shell function**
+4. **An alias.** Commands that we can define ourselves, built from other commands.
+---
+#### Working with commands(2)
+How do you know more about commands?
+1. `type`: type tells you whether command is a builtin or alias or an executable program
+```bash
+type echo
+# output: echo is a shell builtin
+type cp
+# outputs: cp is /usr/bin/cp
+type ls
+# outputs: ls is aliased to `ls --color=auto'
+```
+2. `which` displays the path of the executable file of that program is located
+3. `man` shows the paginated documentation called a manual or man page for the command.
 ---
 ### References
 1. [UNIX concepts and applications by Das, Sumitabha](https://opac.daiict.ac.in/cgi-bin/koha/opac-detail.pl?biblionumber=10722&query_desc=kw%2Cwrdl%3A%20Sumitabha%20Das)
