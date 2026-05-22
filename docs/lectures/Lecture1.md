@@ -44,6 +44,37 @@
 
 ---
 
+
+### Kernel and Shell(1)
+
+![Kernel shell](../images/kernel_shell_hardware.png)
+
+---
+### Kernel vs shell (2)
+**[[Kernel]]** 
+is the most important part of operating system that talks to hardware. It is loaded into main memory when the system is booted and resides there till it"s shutdown. 
+Kernel is responsible of following:
+1. **Process scheduling**
+   Linux like most modern operating systems is a premptive multitasking  operating system
+   *Multitasking*: because at any given point of time multiple processes sit in main memory and get interleaved access to CPUs.
+   *Preemptive*: because processes doesn't get to decide how long they will execute. OS/kernel decided when they will be scheduled in and out of CPU.
+2. **Memory management:** Main memory is a limited resource and kernel makes sure that processed get access to main memory in an equitable and efficient manner. By providing  *virtual memory*
+   OS ensure 2 things:
+   i) Processes doesn't interfere with other memory allotted to other processes   
+   ii) Programs can be *larger than the main memory* itself and they can be loaded partially into main memory
+	 
+3. **Provisioning of file system**: OS/kernel provides abstraction over storage in terms of files. Processes can create.modify/delete/access files without worrying about the underlying storage.
+4. Creation and termination of processes: Kernel can load a new program into the main memory, provide it resources, then when the process is done executing may free the resources used by that process 
+5. **Networking**: Kernel facilitates the movement of network packets on behalf of processes.  
+6. **Provision of system call API interface**(What this course is mostly about)
+
+Refer code example: [[../code/demo_explaination.md]]
+
+
+**[[Shell]]** is the outer part of the operating system which is close to the user. It is the program that  interprets user"s text commands and execute them. Terminal is the interface to shell.
+
+---
+
 # What is a System Call?
 
 A system call is how a program asks the operating system to do something.
@@ -105,18 +136,7 @@ Different ways to launch programs:
 	OS provides user [[Shell]] which is a program that executes other programs in response to text input. Shell interprets and executes the command.
 ---
 
-### Kernel and Shell(1)
 
-![Kernel shell](../images/kernel_shell_hardware.png)
-
----
-### Kernel vs shell (2)
-**[[Kernel]]** 
-is the most important part of operating system that talks to hardware. It is loaded into main memory when the system is booted and resides there till it"s shutdown. 
-
-**[[Shell]]** is the outer part of the operating system which is close to the user. It is the program that  interprets user"s text commands and execute them. Terminal is the interface to shell.
-
----
 ## System PATH
 Whenever you run a command, shell tries to find the file related to that command in PATH. in case that command is not found in any of these directories. it returns "command not found"
 ```bash
