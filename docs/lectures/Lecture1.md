@@ -45,14 +45,13 @@
 ---
 
 
-### Kernel and Shell(1)
+### Kernel and Shell
 
 ![Kernel shell](../images/kernel_shell_hardware.png)
 
----
-### Kernel vs shell (2)
-**[[Kernel]]** 
-is the most important part of operating system that talks to hardware. It is loaded into main memory when the system is booted and resides there till it"s shutdown. 
+
+#### Kernel 
+Kernel is the most important part of operating system that talks to hardware. It is loaded into main memory when the system is booted and resides there till it"s shutdown. 
 Kernel is responsible of following:
 1. **Process scheduling**
    Linux like most modern operating systems is a premptive multitasking  operating system
@@ -70,7 +69,7 @@ Kernel is responsible of following:
 
 Refer code example: [[../code/demo_explaination.md]]
 
-
+#### Shell
 **[[Shell]]** is the outer part of the operating system which is close to the user. It is the program that  interprets user"s text commands and execute them. Terminal is the interface to shell.
 
 ---
