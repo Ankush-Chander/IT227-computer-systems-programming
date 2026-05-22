@@ -74,59 +74,6 @@ Refer code example: [[../code/demo_explaination.md]]
 
 ---
 
-# What is a System Call?
-
-A system call is how a program asks the operating system to do something.
-For example:
-- create a process
-- open a file
-- allocate memory
-- send data over network
-- create a thread
-- sleep
-- terminate
-
-Without system calls, applications cannot interact with hardware or OS resources.
-The OS is like a protected manager.
-
-System calls are the official requests.
-
-
-# Example: 
-
-A Python developer might write:
-
-```python
-with open("data.txt") as f:
-    content = f.read()
-```
-
-Looks harmless.
-
-But underneath:
-
-- Python runtime invokes C libraries
-- C libraries invoke system calls
-- OS opens file descriptors
-- kernel validates permissions
-- filesystem locates disk blocks
-- memory buffers are managed
-- data is copied between kernel/user space
-
-The Python developer never sees:
-
-- `open()`
-- `read()`
-- `write()`
-- `close()`
-
-directly.
-The abstractions are intentionally hiding complexity.
-This course exposes that complexity.
-
----
-
-
 ### GUI vs CLI
 Different ways to launch programs:
 1. *via GUI*(Graphical User Interface)

@@ -102,7 +102,7 @@ visible by logging every trap.
 
 ---
 
-## Quick Reference Table
+### Quick Reference Table
 
 | Kernel Responsibility            | C API         | Syscall (see in strace)       |
 | -------------------------------- | ------------- | ----------------------------- |
@@ -112,3 +112,46 @@ visible by logging every trap.
 | 4.  Process Creation/Termination | `fork/exit()` | `clone`, `exit_group`, `wait4` |
 | 5.  Networking                   | `socket()`    | `socket`, `connect`, `sendto`, `recvfrom` |
 | 6.  System Call API              | —             | every line in the strace log  |
+
+
+## python -u read_file.py > read_file.md 
+```
+Run strace python -u read_file.py 
+```
+### Strace Output Explanation
+
+1. **Process Execution & Dynamic Linking**
+- execve — Kernel loads /usr/bin/python3 with args ["python3", "-u", "read_file.py"].
+- brk / mmap — Initial heap and anonymous memory allocation.
+- Dynamic library loading — The dynamic linker searches for shared libraries (libm.so.6, libz.so.1, libexpat.so.1, libc.so.6). It first tries hardware-cap specific paths and LD_LIBRARY_PATH entries (opensearch, cuda), gets ENOENT, then falls back to /etc/ld.so.cache and finds them under /lib/x86_64-linux-gnu/. Each library is openat → read (ELF header) → mmap into process address space.
+2. **Runtime Initialization**
+- arch_prctl, set_tid_address, set_robust_list, rseq — Thread-local storage and robust futex setup.
+- mprotect — Sets page protections on loaded library segments (read-only, read+exec, etc.).
+- prlimit64 — Confirms stack size limit (8MB).
+- Locale & encoding — Loads /usr/lib/locale/locale-archive and gconv-modules.cache.
+- Python interpreter boot — Resolves binary path via PATH search (newfstatat on each $PATH dir), reads pyvenv.cfg, discovers Python 3.12 library paths, loads stdlib modules (encodings/__init__.pyc, aliases.pyc, utf_8.pyc), and runs sitecustomize.py and apport_python_hook.py.
+3. **Signal & I/O Setup**
+- rt_sigaction — Python sets up signal handlers: SIGPIPE and SIGXFSZ are ignored (SIG_IGN), SIGINT gets a Python-specific handler. All other signals queried to check defaults.
+- fstat / ioctl / lseek on fd 0, 1, 2 — Python checks whether stdin/stdout/stderr are ttys. stdout and stderr are sockets (not ttys), stdin is a character device.
+4. **Reading read_file.py**
+- newfstatat — Gets file metadata: 68 bytes, mode 0664.
+- openat — Opens read_file.py as fd 3 (O_RDONLY|O_CLOEXEC).
+- fstat / ioctl / lseek — Confirms it's a regular file (not a tty), checks seekability.
+- read(3, ..., 69) — Reads all 68 bytes of the script source.
+- close(3) — Closes the script file.
+5. **Opening & Reading demo.c**
+- openat(AT_FDCWD, "demo.c", O_RDONLY|O_CLOEXEC) — Python's open() call opens demo.c as fd 3 (2840 bytes).
+- fstat(3) — Confirms file size: 2840 bytes.
+- read(3, ..., 2841) — Reads all 2840 bytes into memory (this is f.read()).
+- read(3, "", 1) — Second read returns 0 bytes → EOF.
+- write(1, ..., 2840) — Python's print(content) writes the full C source to stdout.
+- write(1, "\n", 1) — Prints the trailing newline.
+- close(3) — Closes demo.c.
+6. **Cleanup & Exit**
+- rt_sigaction(SIGINT) — Restores default SIGINT handler.
+- brk (×2) — Shrinks heap back down.
+- munmap — Releases Python runtime memory mappings.
+- exit_group(0) — Process exits cleanly with status 0.
+
+### Key Takeaway
+The syscalls show the full lifecycle: kernel loads Python → resolves shared libs → boots interpreter → reads script → script issues open/read/write/close on demo.c → kernel mediates all I/O → process exits. The -u flag made stdout unbuffered, so write happens immediately after read.
