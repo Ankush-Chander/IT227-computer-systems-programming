@@ -15,8 +15,10 @@ model: ollama@my-qwen3.6:latest
 The course provides an introductory look at the core abstractions in operating systems: processes, virtual memory, and files. It takes an in-depth look at OS services provided by system calls, how system calls work, and how they can be used. Students will become familiar with writing application programs using system calls.
 
 ## Text Books
-1. Bryant, R. & O'Hallaron, D. *Computer Systems: A Programmer's Perspective*, 3rd Edition, Pearson India, 2016.
-2. Arpaci-Dusseau, R. H. & Arpaci-Dusseau, A. C. *Operating Systems: Three Easy Pieces*, 2018, Version 1.00. (Freely available online.)
+1. Bryant, R. & O'Hallaron, D. *Computer Systems: A Programmer's Perspective*, 3rd Edition, Pearson India, 2016. (Freely available online.)
+2. Michael Kerrisk, *The Linux Programming Interface* (Freely available online.) 
+3. Arpaci-Dusseau, R. H. & Arpaci-Dusseau, A. C. *Operating Systems: Three Easy Pieces*, 2018, Version 1.00. (Freely available online.)
+4. 
 
 ---
 
@@ -26,6 +28,10 @@ The course provides an introductory look at the core abstractions in operating s
 | Lab Programming Assignments |    30%    |
 | End-Semester Exam           |    70%    |
 | **Total**                   | **100%**  |
+
+**Note:**
+1. Grading will be absolute with minor normalization later.
+2. Attendance policy is 50%. In case less than 50%,  1 pointer gets deducted from the actual grade you earned via exams/lab assignments.
 
 ---
 

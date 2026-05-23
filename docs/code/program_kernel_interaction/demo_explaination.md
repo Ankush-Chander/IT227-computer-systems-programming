@@ -155,3 +155,6 @@ Run strace python -u read_file.py
 
 ### Key Takeaway
 The syscalls show the full lifecycle: kernel loads Python → resolves shared libs → boots interpreter → reads script → script issues open/read/write/close on demo.c → kernel mediates all I/O → process exits. The -u flag made stdout unbuffered, so write happens immediately after read.
+
+![](../../images/python_flow.png)  
+Source: ChatGPT
