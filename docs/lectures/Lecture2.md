@@ -12,10 +12,11 @@
 ---
 ### Process address space
 
+![](images/address_space.png)
+
 **Program code and data:** Code begins at the same ﬁxed address for all processes,
 followed by data locations that correspond to global C variables. The code and
-data areas are initialized directly from the contents of an executable object ﬁle,
-in our case the hello executable.
+data areas are initialized directly from the contents of an executable object ﬁle.
 
 **Heap:** The code and data areas are followed immediately by the run-time heap.
 Unlike the code and data areas, which are ﬁxed in size once the process begins
@@ -38,7 +39,7 @@ always resident in memory. The top region of the address space is reserved for
 the kernel. Application programs are not allowed to read or write the contents
 of this area or to directly call functions deﬁned in the kernel code.
 
-![](images/address_space.png)
+
 
 ---
 
@@ -70,6 +71,41 @@ of this area or to directly call functions deﬁned in the kernel code.
 | Built-in Types (int, float, etc.) | Stack/Heap     | Undefined (contains garbage values)  |
 | Built-in Types (Global/Static)    | Data Segment   | Zero-initialized (0 for basic types) |
 | User-Defined Types                | Stack/Heap     | Default constructor (if provided)    |
+
+---
+
+### Related bash commands
+```bash
+
+# return the maximum memory available to program stack(in KB)
+ulimit -s 
+
+# return the maximim heap memory available to a program
+ulimit -v
+
+# set maximum heap memory to 2GB
+ulimit -v 2097152
+```
+
+### Segmentation fault experiment
+```bash
+#include <stdio.h>
+void causeSegmentationFault(int depth) {
+    // function calls itself by appending the argument
+    // note there is no stopping condition in the recursion, hence it will keep on calling itself forever.
+    // thereby expanding stack
+    printf("Recursion depth: %d\n", depth);
+    causeSegmentationFault(depth + 1); // Recursive call with increased depth
+}
+int main() {
+    causeSegmentationFault(1); // Start the recursion
+    return 0;
+}
+```
+
+```c
+```
+
 
 ## System calls
 
