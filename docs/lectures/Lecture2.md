@@ -1,93 +1,117 @@
+## Agenda
 
-#### Working with commands(1)
-A command can be one of four different things:
-1. **An executable program** compiled binaries such as programs written in C/C++/Java  or programs written in scripting languages such as the shell, perl, python, ruby, etc.
-2. A command **built into the shell** itself. 
-3. **shell function**
-4. **An alias.** Commands that we can define ourselves, built from other commands.
+1. Process layout
+	1. Stack/heap
 ---
-#### Working with commands(2)
-How do you know more about commands?
-1. `type`: type tells you whether command is a builtin or alias or an executable program
-```bash
-type echo
-# output: echo is a shell builtin
-type cp
-# outputs: cp is /usr/bin/cp
-type ls
-# outputs: ls is aliased to `ls --color=auto'
-```
-2. `which` displays the path of the executable file of that program is located
-3. `man` shows the paginated documentation called a manual or man page for the command.
----
-#### OS abstractions
-
-![Image](../images/os_abstractions.png) 
+## Memory allocation of a program
+![Virtual memory](../images/virtual_memory.png)
 
 ---
-#### Processes(1) 
-1. When a system starts up, the kernel initiates a few of its own activities as processes and launches a program called init. 
-```bash
-ps -ef | grep init
-#outputs: 
-#root           1       0  0 Jul22 ?        00:00:03 /sbin/init splash
-```
+### Process address space
 
-3. init, in turn, runs a series of shell scripts (located in
-/etc) called init scripts, which start all the system services.
-```bash
-ps h --ppid 1
-# outputs:
-# 475 ?        S<s    0:04 /lib/systemd/systemd-journald
-# ...
-```
----
-#### Processes(2)
-Process related commands 
-1. `htop` – Display tasks
-```bash
-htop
-# allows search
-```
+![](../images/address_space.png)
 
-2. `ps`: Report a snapshot of current processes
-```bash
-ps -ef
-```
-3. `nohup`
-```bash
-nohup /usr/bin/vlc &
-# runs a program without blocking the terminal, saves output to nohup.out instead of terminal
-```
+**Program code and data:** Code begins at the same ﬁxed address for all processes,
+followed by data locations that correspond to global C variables. The code and
+data areas are initialized directly from the contents of an executable object ﬁle.
+
+**Heap:** The code and data areas are followed immediately by the run-time heap.
+Unlike the code and data areas, which are ﬁxed in size once the process begins
+running, the heap expands and contracts dynamically at run time as a result
+of calls to C standard library routines such as malloc and free. 
+
+**Shared libraries:** Near the middle of the address space is an area that holds the
+code and data for shared libraries such as the C standard library and the math
+library. The notion of a shared library is a powerful but somewhat difﬁcult
+concept. 
+
+**Stack:** At the top of the user’s virtual address space is the user stack that
+the compiler uses to implement function calls. Like the heap, the user stack
+expands and contracts dynamically during the execution of the program. In
+particular, each time we call a function, the stack grows. Each time we return
+from a function, it contracts.
+
+**Kernel virtual memory:**  The kernel is the part of the operating system that is
+always resident in memory. The top region of the address space is reserved for
+the kernel. Application programs are not allowed to read or write the contents
+of this area or to directly call functions deﬁned in the kernel code.
+
+
 
 ---
 
-4. kill – Send a signal to a process
+### Properties
+
+| Memory Segment | Type of Variables                                           | Characteristics                                |
+| -------------- | ----------------------------------------------------------- | ---------------------------------------------- |
+| Stack          | - Local variables                                           | - Automatic allocation and deallocation        |
+|                | - Function call frames                                      | - LIFO (Last In, First Out) order              |
+|                | - Parameters                                                | - Limited size                                 |
+|                | - Temporary variables                                       | - Exists only for the duration of the function |
+| Heap           | - Dynamically allocated variables (using `new` or `malloc`) | - Manual allocation and deallocation           |
+|                | - Objects and arrays allocated at runtime                   | - Can grow as needed                           |
+|                |                                                             | - Fragmentation possible                       |
+| Program Data   | - Global variables                                          | - Initialized at program start                 |
+| (Data Segment) | - Static variables                                          | - Divided into initialized and uninitialized   |
+|                | - Constants                                                 | - Global lifetime                              |
+|                | - Strings                                                   | - Accessible throughout the program            |
+| Code Segment   | - Executable instructions                                   | - Read-only                                    |
+| (Text Segment) |                                                             | - Contains compiled code                       |
+### Default values
+
+| Variable Type                     | Memory Segment | Default Initialization               |
+| --------------------------------- | -------------- | ------------------------------------ |
+| Local Variables                   | Stack          | Undefined (contains garbage values)  |
+| Global Variables                  | Data Segment   | Zero-initialized (0 for basic types) |
+| Static Variables                  | Data Segment   | Zero-initialized (0 for basic types) |
+| Dynamically Allocated             | Heap           | Undefined (contains garbage values)  |
+| Built-in Types (int, float, etc.) | Stack/Heap     | Undefined (contains garbage values)  |
+| Built-in Types (Global/Static)    | Data Segment   | Zero-initialized (0 for basic types) |
+| User-Defined Types                | Stack/Heap     | Default constructor (if provided)    |
+
+---
+
+### Related bash commands
 ```bash
-kill -SIGKILL $pid
+
+# return the maximum memory available to program stack(in KB)
+ulimit -s 
+
+# return the maximim heap memory available to a program
+ulimit -v
+
+# set maximum heap memory to 2GB
+ulimit -v 2097152
 ```
 
-![Image|410](../images/kill_process.jpg )
-
----
-
-#### GUI vs CLI(continued)
-
-**What happens when you double click an icon on GUI?**
-- **GUI Event Handling**: The desktop environment detects the double-click.
-- **File Manager Interaction**: The file manager retrieves the desktop entry file for VLC(usually found in `/usr/share/applications`) and has `.desktop` extension.
-- **Launching the Application**: The desktop environment executes the command specified in the desktop entry file.
-- Service manager launches the vlc application
----
-**What happens when you run the command from terminal?**
-
--  Shell parses the command and locates the VLC executable in SYSTEM path.
-- Shell forks a new process and executes the VLC executable.
+### Segmentation fault experiment
 ```bash
-ps -ef | grep vlc
+#include <stdio.h>
+void causeSegmentationFault(int depth) {
+    // function calls itself by appending the argument
+    // note there is no stopping condition in the recursion, hence it will keep on calling itself forever.
+    // thereby expanding stack
+    printf("Recursion depth: %d\n", depth);
+    causeSegmentationFault(depth + 1); // Recursive call with increased depth
+}
+int main() {
+    causeSegmentationFault(1); // Start the recursion
+    return 0;
+}
 ```
----
 
-#### References
-1. CSAPP,  Chapter 1
-2. Linux Command Line, Chapter 11
+```c
+```
+
+
+## System calls
+
+![](../images/system_call_flow.png)
+
+User space/kernel space
+glibc
+
+
+## References:
+1. [Assembly Cheat Sheet - CheatDocs](https://cheatdocs.org/assembly)
+2. [Compiler Explorer](https://godbolt.org)
