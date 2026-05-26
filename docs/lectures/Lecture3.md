@@ -1,15 +1,6 @@
 ---
 delivery date:
 ---
-
-# Quick recap:
-1. IO redirection using `>`,`<` operators
-2. Command pipelines using `|` operator
-3. Shell scripting  
-  i. taking command line arguments into a variable  
-  ii. taking input from a stream  
-
-
 # Agenda:
 1. Thorough understanding of compilation process
 2. How C++ programs do IO?
