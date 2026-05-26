@@ -1,10 +1,7 @@
 ## Agenda
 
 1. Process layout
-2. System calls
-3. User mode/kernel mode
-4. Debugging using assembly language
-
+	1. Stack/heap
 ---
 ## Memory allocation of a program
 ![Virtual memory](images/virtual_memory.png)
