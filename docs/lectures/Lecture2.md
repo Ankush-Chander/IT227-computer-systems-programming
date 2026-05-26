@@ -4,12 +4,12 @@
 	1. Stack/heap
 ---
 ## Memory allocation of a program
-![Virtual memory](images/virtual_memory.png)
+![Virtual memory](../images/virtual_memory.png)
 
 ---
 ### Process address space
 
-![](images/address_space.png)
+![](../images/address_space.png)
 
 **Program code and data:** Code begins at the same ﬁxed address for all processes,
 followed by data locations that correspond to global C variables. The code and

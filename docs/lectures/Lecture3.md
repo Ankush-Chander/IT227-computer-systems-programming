@@ -100,6 +100,7 @@ Pic credits: CSAPP
 **Assignment:** replaces existing value of a variable with a new value
 
 ---
+
 ```c++
 extern int globalVar; //declaration of a variable 
 
@@ -116,7 +117,9 @@ int globalVar = 5;
 // assignment
 globalVar = 5;
 ```
+
 ---
+
 #### header files vs source files
 
 | Aspect          | Header Files (`.h`, `.hpp`)                                                                  | Source Files (`.cpp`, `.cc`, `.cxx`)                                                         |
@@ -212,6 +215,7 @@ return 0;
 ---
 
 ##### Compilation
+
 ```bash
 # Compile math_functions.c
 gcc -c math_functions.c -o math_functions.o
@@ -223,6 +227,7 @@ gcc -c main.c -o main.o
 gcc main.o math_functions.o -o my_program
 
 ```
+
 ---
 
 
