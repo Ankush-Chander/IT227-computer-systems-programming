@@ -13,7 +13,7 @@ Welcome to the course on Computer Systems Programming.
 - [Lecture 5 — Compilation Process](lectures/Lecture3.md)
 <!-- - [Lecture 2 — Kernel and shell](lectures/Lecture2.md) -->
 <!-- - [Lecture 3 — Filesystem Navigation & Permissions](lectures/Lecture3.md)
-- [Lecture 4 — I/O Redirection, Pipes & Shell Scripting](Professional/ProfessionalProjects/DAIICT%20academics/IT227%20-%20Computer%20system%20engineering/docs/lectures/Lecture6.md)
+- [Lecture 4 — I/O Redirection, Pipes & Shell Scripting](lectures/Lecture4.md)
  -->
 
 ---

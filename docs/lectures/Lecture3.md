@@ -1,27 +1,26 @@
 ---
 delivery date:
 ---
-# Agenda:
+# Agenda
+
 1. Thorough understanding of compilation process
 2. How C++ programs do IO?
-
-
 
 ## Compilation process
 
 Programs are translated by other programs into different forms:
-Different stages of compilation process:
+Different stages of compilation process:  
+
 1. **Preprocessing phase:** In this phase, the preprocessor is responsible for handling directives such as #include, #define, and #ifdef. It processes these directives and modifies the source code accordingly. It also removes comments and whitespace, and incorporates header files into the source code.
 
 2. **Compilation phase:** In this phase, the preprocessed source code is translated into assembly language. The compiler parses the code, checks it for errors, and translates it into a low-level intermediate representation. This phase also involves optimizations to improve the efficiency of the generated code.
-
-
 
 3. **Assembly phase:** In this phase, the assembly code generated in the compilation phase is translated into machine code ([[Object code]]) by the assembler. The assembler converts the symbolic instructions and addresses into binary code that can be understood by the computer's processor.
 
 4. **Linking phase:** In this final phase, the linker links all the Object code files generated in the compilation phase and resolves external references. It combines the object code files with any necessary system libraries and generates the final executable file. The linker also performs any necessary relocations and generates a symbol table for the program.
 
 Hello World program:
+
 ```c++
 // main.c
 #include <stdio.h>
@@ -33,8 +32,8 @@ int main()
 }
 ```
 
-
 ## Compilation steps
+
 ```bash
 
 # Preprocessing
@@ -53,7 +52,8 @@ gcc main.o -o main
 gcc main.c -o main
 ```
 
-## Entry point 
+## Entry point
+
 The entry point of a C++ program is the function where execution starts. This is typically the `main function`. The main function has a special significance and specific rules regarding its declaration, return type, and parameters.
 
 **Parameters**  
@@ -69,6 +69,7 @@ Non-zero values indicate errors or abnormal termination.
 ---
 
 ## Multifile compilation
+
 1. **Preprocessor** processes each source file and act upon preprocessor directives(hash directives). (test.cpp => test.i)
 2. **Compiler** takes in the resultant source file and compile it to assembly code. (test.i => test.s)
 3. **Assembler** takes in the assembly file and convert it into a relocatable object code. (test.s => test.o)
@@ -82,6 +83,7 @@ Pic credits: CSAPP
 ---
 
 #### Linker
+
 Linker  perform two main tasks:  
 **Symbol resolution:** Object ﬁles deﬁne and reference symbols. The purpose of symbol resolution is to *associate each symbol reference with exactly one symbol deﬁnition.*  
 **Relocation:** Compilers and assemblers generate code and data sections that start at address 0. The linker relocates these sections by associating a memory location with each symbol deﬁnition, and then modifying all of the references to those symbols so that they point to this memory location.
@@ -92,6 +94,7 @@ Relocation
 Pic credits: CSAPP
 
 ---
+
 #### declaration vs definition vs initialisation vs assignment
 
 **Declaration**: Introduces the name of a variable, function, class, etc., and its type, without allocating memory or providing an implementation.  
@@ -130,9 +133,10 @@ globalVar = 5;
 | **Reusability** | Promotes code reuse and modularity by providing common interfaces for multiple source files. | Implements the reusable logic defined in header files.                                       |
 | **Visibility**  | Provides an interface for other files to use without revealing the implementation details.   | Contains implementation details that are not exposed to other parts of the program directly. |
 
-
 ---
+
 #### Directives
+
 Hash directives, also known as preprocessor directives, are instructions that are processed by the preprocessor before the actual compilation of the code begins.
 
 | Directive                    | Purpose                                                                |
@@ -147,17 +151,22 @@ Hash directives, also known as preprocessor directives, are instructions that ar
 | #pragma                      | Provide the compiler specific instructions.                            |
 
 ---
+
 #### sharing variables across files
 
 **`extern` Keyword**:
+
 - Used to declare a variable or function in a different file, indicating that its definition exists elsewhere.
 - Helps in sharing global variables across multiple files.
 
 The `extern` keyword establishes external linkage, making the variable or function accessible across different translation units.
 
 ---
+
 #### Example code
+
 Project structure
+
 ```css
 project/
 ├── main.c
@@ -182,21 +191,24 @@ int subtract(int, int);
 ```
 
 math_functions.c
+
 ```c++
 #include "math_functions.h"
 int add(int a, int b) { return a + b; }
 int subtract(int a, int b) { return a - b; }
 ```
+
 ---
 
 main.c
+
 ```c
 #include <stdio.h>
 #include <stdlib.h>
 #include "math_functions.h"
 int main(int argc, char *argv[]) {
 if (argc != 3) {
-	printf("Please enter 2 numbers.\n");
+ printf("Please enter 2 numbers.\n");
 return 1;
 }
 
@@ -212,9 +224,10 @@ return 0;
 }
 
 ```
+
 ---
 
-#### Compilation steps
+##### Compilation
 
 ```bash
 # Compile math_functions.c
@@ -230,7 +243,7 @@ gcc main.o math_functions.o -o my_program
 
 ---
 
-
 # References
+
 1. CSAPP - Chapter 1  
-2.  Chapter 7: Linking(7.1-7.8) - CSAPP
+2. Chapter 7: Linking(7.1-7.8) - CSAPP
