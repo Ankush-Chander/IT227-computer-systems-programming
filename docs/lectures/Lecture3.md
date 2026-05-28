@@ -227,7 +227,7 @@ return 0;
 
 ---
 
-##### Compilation
+##### Compilation steps
 
 ```bash
 # Compile math_functions.c
