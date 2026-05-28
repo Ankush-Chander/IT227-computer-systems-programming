@@ -1,9 +1,9 @@
 
-Quick recap
-1. Abstractions (processes, files, virtual memory, instruction set, virtual machine)
-2. investigate processes using ps, htop
-3. Parent child processes
-4. GUI vs CLI process launching
+Quick recap  
+1. Abstractions (processes, files, virtual memory, instruction set, virtual machine)  
+2. investigate processes using ps, htop  
+3. Parent child processes   
+4. GUI vs CLI process launching  
 ---
 #### Filesystem navigation(1)
 1. `pwd`: Prints current directory

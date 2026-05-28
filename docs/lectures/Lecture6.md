@@ -1,4 +1,3 @@
-
 # Quick Recap
 1. Abstractions
   - Processes (pid, parent child relationship, GUI vs CLI)
@@ -74,10 +73,6 @@ wc -l tmp.txt
 # method2 (using pipeline)
 ls -l | wc -l
 ```
-
----
-
-![Pipe](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Pipeline.svg/506px-Pipeline.svg.png)
 
 ---
 # Pipe vs redirection

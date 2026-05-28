@@ -13,9 +13,11 @@ nav:
   - Lectures:
       - Lecture 0 - Introduction: 'lectures/Lecture0.md'
       - Lecture 1 — Layered Architecture & Hardware Overview: 'lectures/Lecture1.md'
-      - Lecture 2 — Working with Commands & Processes: 'lectures/Lecture2.md'
+      - Lecture 2 — Processes memory layout: 'lectures/Lecture2.md'
       - Lecture 3 — Compilation Process: 'lectures/Lecture3.md'
-     
+      - Lecture 4 - Process basics:  'lectures/Lecture4.md'
+      - Lecture 5 - Files and File Systems: 'lectures/Lecture5.md'
+      - Lecture 6 - IO basics: 'lectures/Lecture6.md'
   # - Code:
   #     - Storage Engines: 'code/storage_engines/README.md'
   #     - SSTable: 'https://github.com/Ankush-Chander/sorted-string-table-101'
