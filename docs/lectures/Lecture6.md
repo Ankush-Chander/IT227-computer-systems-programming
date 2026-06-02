@@ -75,6 +75,10 @@ ls -l | wc -l
 ```
 
 ---
+
+![Pipe](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Pipeline.svg/506px-Pipeline.svg.png)
+
+---
 # Pipe vs redirection
 
 | Feature          | Pipe                                                               | Redirection Operators <, >                                      |
