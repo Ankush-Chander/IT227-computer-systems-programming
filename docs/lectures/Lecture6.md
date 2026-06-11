@@ -4,7 +4,7 @@
   - Files
     - File ownership (owner, group, others)
     - File Permissions (read, write, execute)
-    - File management (filesystem, inode, directoryhard links, softlinks, )
+    - File management (filesystem, inode, directory, hard links, soft links )
 
 ---
 
@@ -76,7 +76,8 @@ ls -l | wc -l
 
 ---
 
-![Pipe](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Pipeline.svg/506px-Pipeline.svg.png)
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Pipeline.svg/500px-Pipeline.svg.png)
 
 ---
 # Pipe vs redirection

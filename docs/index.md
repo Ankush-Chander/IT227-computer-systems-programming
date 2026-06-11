@@ -13,9 +13,12 @@ Welcome to the course on Computer Systems Programming.
 <!-- - [Lecture 2 — Compilation Process](lectures/Lecture3.md) -->
 - [Lecture 2 — Process memory layout](lectures/Lecture2.md)
 - [Lecture 3 — Compilation Process](lectures/Lecture3.md)
-- [Lecture 4 - Process basics:](lectures/Lecture4.md)
-- [Lecture 5 - Files and File Systems:](lectures/Lecture5.md)
-- [Lecture 6 - IO basics:](lectures/Lecture6.md)
+- [Lecture 4 - Process basics](lectures/Lecture4.md)
+- [Lecture 5 - Files and File Systems](lectures/Lecture5.md)
+- [Lecture 6 - IO basics](lectures/Lecture6.md)
+- [Lecture 7 - Instruction set architecture](lectures/Lecture7.md)
+- [Lecture 8 - ISA - procedures](lectures/Lecture8.md)
+      <!-- - Lecture 8 - 'ISA - Procedures': 'lectures/Lecture8.md'  -->
 <!-- - [Lecture 2 — Kernel and shell](lectures/Lecture2.md) -->
 <!-- - [Lecture 3 — Filesystem Navigation & Permissions](lectures/Lecture3.md)
 - [Lecture 4 — I/O Redirection, Pipes & Shell Scripting](lectures/Lecture4.md)

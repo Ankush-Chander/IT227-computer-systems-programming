@@ -18,6 +18,8 @@ nav:
       - Lecture 4 - Process basics:  'lectures/Lecture4.md'
       - Lecture 5 - Files and File Systems: 'lectures/Lecture5.md'
       - Lecture 6 - IO basics: 'lectures/Lecture6.md'
+      - Lecture 7 - Instruction set architecture: 'lectures/Lecture7.md'
+      - Lecture 8 - ISA-Procedures: 'lectures/Lecture8.md' 
   # - Code:
   #     - Storage Engines: 'code/storage_engines/README.md'
   #     - SSTable: 'https://github.com/Ankush-Chander/sorted-string-table-101'
