@@ -358,19 +358,25 @@ Even if _your_ function doesn't use SSE, the **OS, libc, or any function you cal
 
 ### How Alignment Gets Disturbed
 
-At program start, `%rsp` is 16-byte aligned by the OS. Then things happen:
+Right before a function is called, `%rsp` is 16-byte aligned. Then things happen:
+
 
 ```
-%rsp = 16-byte aligned          ← OS guarantees this at program start
 
-pushq %rbp                      → %rsp -= 8   ← now misaligned by 8!
+%rsp = 16-byte aligned          ← Guaranteed right before `call`
+
+call my_func                    → %rsp -= 8   ← misaligned by 8! (return address pushed)
+pushq %rbp                      → %rsp -= 8   ← aligned again! (saved base pointer)
+
 ```
 
-After `pushq %rbp`, `%rsp` is off by 8. So `subq $N, %rsp` must compensate:
+Because the `call` instruction breaks the alignment and `pushq %rbp` restores it, `%rsp` is perfectly aligned after the function prologue. So, when you allocate space for local variables with `subq $N, %rsp`, you must be careful not to break it again:
+
 
 ```
-(8 + N) must be a multiple of 16
-→ N must be a multiple of 16 (e.g. 16, 32, 48...)
+
+N must be a multiple of 16 (e.g. 16, 32, 48...)
+
 ```
 
 ---
@@ -378,27 +384,28 @@ After `pushq %rbp`, `%rsp` is off by 8. So `subq $N, %rsp` must compensate:
 ### Walking Through an Example
 
 ```asm
-; %rsp = 1000  (16-byte aligned, given by OS)
+; %rsp = 1024  (16-byte aligned right before the call)
 
-call main           ; %rsp = 992   (pushed 8-byte return address)
-pushq %rbp          ; %rsp = 984   (saved caller's %rbp)
-subq $24, %rsp      ; %rsp = 960   (984 - 24 = 960 ✅ multiple of 16)
+call main           ; %rsp = 1016  (Misaligned! pushed 8-byte return address)
+pushq %rbp          ; %rsp = 1008  (Aligned! saved caller's %rbp)
+subq $32, %rsp      ; %rsp = 976   (1008 - 32 = 976 ✅ multiple of 16)
+
 ```
 
-| Event              | `%rsp` | Aligned?     |
-| ------------------ | ------ | ------------ |
-| OS hands control   | 1000   | ✅            |
-| After `call main`  | 992    | ✅            |
-| After `pushq %rbp` | 984    | ❌ (off by 8) |
-| After `subq $24`   | 960    | ✅            |
-| After `subq $22`   | 962    | ❌            |
-| After `subq $30`   | 954    | ❌            |
+| Event | `%rsp` | Aligned? |
+| --- | --- | --- |
+| Right before `call` | 1024 | ✅ |
+| After `call main` | 1016 | ❌ (off by 8) |
+| After `pushq %rbp` | 1008 | ✅ (restored) |
+| After `subq $32` | 976 | ✅ |
+| After `subq $24` | 984 | ❌ |
+| After `subq $30` | 978 | ❌ |
 
 ---
 
 ### Why Multiples of 16 for Local Variables?
 
-Say your function has locals that only need 20 bytes:
+Say your function has locals that only need 17 bytes:
 
 ```
 int a;   4 bytes
@@ -408,23 +415,26 @@ int d;   4 bytes
 char e;  1 byte
 ─────────────────
 total    17 bytes  ← actual need
+
 ```
 
-You **cannot** do `subq $17, %rsp` or even `subq $20, %rsp` — both misalign the stack. So the compiler **rounds up to the nearest multiple of 16**:
+You **cannot** do `subq $17, %rsp` or even `subq $24, %rsp` — both misalign the stack. So the compiler **rounds up to the nearest multiple of 16**:
 
 ```
 17 bytes → round up → 32 bytes
 20 bytes → round up → 32 bytes
+
 ```
 
 ```
 ┌─────────────────────────┐ ← %rbp
-│      Saved %rbp         │   (8 bytes, from pushq)
+│    Saved %rbp           │   (8 bytes, from pushq)
 ├─────────────────────────┤
-│   a, b, c, d, e         │   17 bytes actually used
+│    a, b, c, d, e        │   17 bytes actually used
 ├─────────────────────────┤
-│   padding               │   15 bytes wasted — just to stay aligned
+│    padding              │   15 bytes wasted — just to stay aligned
 └─────────────────────────┘ ← %rsp  (subq $32 keeps alignment)
+
 ```
 
 > The padding bytes are **intentionally wasted** — a small price for correctness and performance.
@@ -435,24 +445,196 @@ You **cannot** do `subq $17, %rsp` or even `subq $20, %rsp` — both misalign th
 
 Even beyond SSE requirements, aligned memory access is **faster** on all modern CPUs:
 
-| Access type                     | Cost                                      |
-| ------------------------------- | ----------------------------------------- |
-| Aligned (address % 16 == 0)     | Single memory transaction                 |
+| Access type | Cost |
+| --- | --- |
+| Aligned (address % 16 == 0) | Single memory transaction |
 | Misaligned (crosses cache line) | Two memory transactions — up to 2× slower |
 
 ---
 
 ### Summary
 
-| Question                               | Answer                                                      |
-| -------------------------------------- | ----------------------------------------------------------- |
-| Why align at all?                      | SSE instructions require it; misalignment causes segfault   |
-| What is the rule?                      | `%rsp` must be multiple of 16 before `call`                 |
-| Why does `pushq %rbp` cause a problem? | It shifts `%rsp` by 8, breaking alignment                   |
-| How does `subq` fix it?                | N must be chosen so that `8 + N` is a multiple of 16        |
+| Question | Answer |
+| --- | --- |
+| Why align at all? | SSE instructions require it; misalignment causes segfault |
+| What is the rule? | `%rsp` must be multiple of 16 before `call` |
+| What breaks the alignment? | The `call` instruction pushes an 8-byte return address |
+| How is it restored? | `pushq %rbp` pushes another 8 bytes, restoring alignment |
+| How does `subq` maintain it? | N must be a multiple of 16 so alignment isn't broken again |
 | Why round locals up to multiple of 16? | To satisfy that rule regardless of how many locals you have |
-| What fills the gap?                    | Padding bytes — unused but necessary                        |
+| What fills the gap? | Padding bytes — unused but necessary |
 
+---
 
+## Red Zone
 
+### What Is It?
 
+In x86-64 SysV ABI (Linux/macOS), the **Red Zone** is a **128-byte region immediately below `%rsp`** that the calling convention guarantees will not be clobbered by signal handlers or asynchronous interrupts.
+
+```
+Higher addresses
+┌─────────────────────────┐
+│    Normal stack frame   │
+├─────────────────────────┤ ← %rsp points here
+│  ┌───────────────────┐  │
+│  │     Red Zone      │  │
+│  │   (128 bytes)     │  │
+│  └───────────────────┘  │
+├─────────────────────────┤ ← %rsp - 128
+│   OS / signal handlers  │
+└─────────────────────────┘
+Lower addresses
+```
+
+> Think of it as a private scratch-pad right below the stack pointer — you can scribble on it without adjusting `%rsp`, because the ABI guarantees nobody else will touch it.
+
+---
+
+### What Does It Enable?
+
+Because these 128 bytes are guaranteed safe, a leaf function can store locals in the Red Zone **without adjusting `%rsp` at all**:
+
+```
+Without Red Zone                  With Red Zone (leaf function)
+──────────────                    ─────────────────────────
+pushq %rbp                        ; no pushq needed
+movq  %rsp, %rbp                  ; no movq needed
+subq  $32, %rsp                   ; no subq needed!
+movl  %edi, -20(%rbp)             movl  %edi, -4(%rsp)
+movl  %esi, -24(%rbp)             movl  %esi, -8(%rsp)
+                                  ; ... use locals freely ...
+addq  $32, %rsp                   ; no addq needed
+leave                             ret
+ret                               ; just return directly
+```
+
+---
+
+### Benefits
+
+| Benefit | Explanation |
+| --- | --- |
+| **Fewer instructions** | No `subq`/`addq` on `%rsp`, sometimes no full prologue/epilogue |
+| **Less register pressure** | Don't need `%rbp` for frame anchoring — access locals directly via `%rsp` offsets |
+| **Faster leaf functions** | Eliminates entire stack setup and teardown overhead |
+
+---
+
+### When Can You Use It?
+
+The Red Zone is only valid for **leaf functions** — functions that do **not call any other function** (directly or indirectly):
+
+| Scenario | Safe to use Red Zone? |
+| --- | --- |
+| Simple computation, no calls, small locals | ✅ Yes |
+| Function that calls another function | ❌ No — the callee will step into your Red Zone |
+| Function using `alloca()` | ❌ No |
+| Function using `setjmp`/`longjmp` | ❌ No |
+| Code compiled with `-fno-omit-frame-pointer` | ❌ Typically disabled |
+| Kernel code / interrupt handlers | ❌ No — signals can clobber it |
+
+---
+
+### Why Does It Exist?
+
+Without the Red Zone, **every single function** — even trivial ones like:
+
+```c
+int square(int x) {
+    return x * x;
+}
+```
+
+...would need to adjust `%rsp` if it wanted to spill a local value. The Red Zone eliminates this overhead for simple leaf functions.
+
+---
+
+### Controlling the Red Zone
+
+| Compiler Flag | Effect |
+| --- | --- |
+| Default (Linux x86-64) | Red Zone enabled — compiler uses it automatically |
+| `-mno-red-zone` | Disables it entirely — all locals go above `%rsp` with explicit allocation |
+| `-fPIC` / position-independent | Red Zone still available by default |
+
+> **Important:** Windows x86-64 ABI (Microsoft) does **not** have a Red Zone. Code compiled for Windows always needs explicit stack allocation.
+
+---
+
+### Walking Through an Example
+
+Compile this C code with and without the Red Zone:
+
+```c
+int sum(int a, int b) {
+    int result = a + b;
+    return result;
+}
+```
+
+**With Red Zone (default, `-O0`):**
+
+```asm
+sum:
+    pushq   %rbp
+    movq    %rsp, %rbp
+    subq    $32, %rsp
+    movl    %edi, -20(%rbp)     ; a
+    movl    %esi, -24(%rbp)     ; b
+    movl    -20(%rbp), %edx
+    movl    -24(%rbp), %eax
+    addl    %edx, %eax
+    movl    %eax, -4(%rbp)      ; result — stored in Red Zone or stack area
+    movl    -4(%rbp), %eax
+    leave
+    ret
+```
+
+**With `-mno-red-zone` (same code):**
+
+```asm
+sum:
+    pushq   %rbp
+    movq    %rsp, %rbp
+    subq    $32, %rsp           ; same layout — but now ALL locals are above %rsp,
+                                ;        not in the 128-byte region below it
+    movl    %edi, -20(%rbp)
+    movl    %esi, -24(%rbp)
+    ; ... (rest is conceptually the same, just different placement guarantee)
+```
+
+At `-O2` with Red Zone enabled, the compiler may skip the entire frame:
+
+```asm
+sum:
+    leal    (%rdi,%rsi), %eax   ; just add directly into return register
+    ret                         ; no push, no subq, no leave — just return
+```
+
+---
+
+### Red Zone and Signals
+
+The 128-byte guarantee is key. When a signal arrives:
+
+| Without Red Zone | With Red Zone |
+| --- | --- |
+| Signal handler could write anywhere near `%rsp` | Signal handler must skip past the 128-byte zone below `%rsp` |
+| No safe scratch area exists | The zone below `%rsp` is your private scratch space |
+
+This is why it's called a **Red** Zone — it's marked off-limits for everything except the current function.
+
+---
+
+### Summary
+
+| Question | Answer |
+| --- | --- |
+| What is the Red Zone? | 128 bytes below `%rsp` guaranteed safe by ABI |
+| What does it save? | Stack adjustment instructions in leaf functions |
+| Who benefits? | Simple functions that don't call other functions |
+| Can I use it explicitly? | No — it's a compiler optimization, not an instruction you invoke |
+| What if my function calls another? | Don't use it — the callee will overwrite those 128 bytes |
+| Available on Windows? | No — Microsoft x86-64 ABI has no Red Zone |
+| How to disable? | Compile with `-mno-red-zone` |

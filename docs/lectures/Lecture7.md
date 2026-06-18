@@ -94,6 +94,11 @@ You can use the lower parts for backward compatibility:
 
 > For the 8 low bytes of rsi, rdi, rbp, rsp, r8–r15, use the `l` suffix (sil, dil, bpl, spl, r8b..r15b). No `ah`/`bh`/etc for them.
 
+
+Floating-point data are held in a set of **XMM registers**, named `%xmm0–%xmm15`. Each of these registers is ***128 bits long***, able to hold **four single-precision (`float`)** or **two double-precision (`double`) floating-point numbers**. For our initial presentation, we will only make use of instructions that operate on single values held in SSE registers.
+
+The `movss` instruction copies one single-precision number. Like the various `mov` instructions of IA32, both the source and the destination can be memory locations or registers, but it uses XMM registers, rather than general-purpose registers. The `mulss` instruction multiplies single-precision numbers, updating its second operand with the product. Again, the source and destination operands can be memory locations or XMM registers.
+
 ---
 
 ## Special Registers
@@ -150,6 +155,25 @@ You don't need to memorize hundreds of instructions. These cover the vast majori
 
 ### Data Movement
 
+| Instruction | Mnemonic | Operation | Description |
+| --- | --- | --- | --- |
+| `movb` | Move byte | `DD ← S` | Move 8-bit value |
+| `movw` | Move word | `DD ← S` | Move 16-bit value |
+| `movl` | Move double word | `DD ← S` | Move 32-bit value |
+| `movq` | Move quad word | `DD ← S` | Move 64-bit value |
+| `movss` | Move single-precision float | `DD ← S` | Move 32-bit float |
+| `movsd` | Move double-precision float | `DD ← S` | Move 64-bit float |
+| `movsbw` | Move sign-extended byte to word | `DD ← SignExtend(S)` | Sign-extend byte → 16-bit |
+| `movsbl` | Move sign-extended byte to long | `DD ← SignExtend(S)` | Sign-extend byte → 32-bit |
+| `movswl` | Move sign-extended word to long | `DD ← SignExtend(S)` | Sign-extend word → 32-bit |
+| `movzbw` | Move zero-extended byte to word | `DD ← ZeroExtend(S)` | Zero-extend byte → 16-bit |
+| `movzbl` | Move zero-extended byte to long | `DD ← ZeroExtend(S)` | Zero-extend byte → 32-bit |
+| `movzwl` | Move zero-extended word to long | `DD ← ZeroExtend(S)` | Zero-extend word → 32-bit |
+
+> **Sign extension** replicates the source's sign bit into all new high bits. **Zero extension** fills the new high bits with zeros. Think of it as: sign extension preserves the number's positive/negative identity when widening, while zero extension always treats the result as unsigned.
+
+Examples:
+
 ```asm
 movq $42, %rax          # rax = 42  (immediate value)
 movq %rbx, %rax         # rax = rbx (register to register)
@@ -159,6 +183,31 @@ movq -8(%rbp), %rax     # rax = *(rbp - 8) — typical local variable read
 ```
 
 `[...]` means "the memory at this address." Think of it as the `*` dereference operator in C.
+
+### Sign/Zero Extension
+
+| Instruction | Meaning                   | Example                     |
+| ----------- | ------------------------- | --------------------------- |
+| `movzbl`    | Zero extend byte → int    | `movzbl (%rax), %eax`       |
+| `movzwl`    | Zero extend word → int    | `movzwl (%rax), %eax`       |
+| `movsbq`    | Sign extend byte → 64-bit | `movsbq %al, %rax`          |
+| `movswq`    | Sign extend word → 64-bit | `movswq %ax, %rax`          |
+| `movslq`    | Sign extend int → 64-bit  | `movslq %eax, %rax`         |
+| `cltq`      | Sign extend eax → rax     | Often before array indexing |
+| `cqto`      | Sign extend rax → rdx:rax | Before `idiv`               |
+
+
+### Integer ↔ Floating Point Conversions
+
+| Instruction | Meaning                 |
+| ----------- | ----------------------- |
+| `cvtsi2ss`  | int → float             |
+| `cvtsi2sd`  | int → double            |
+| `cvttss2si` | float → int (truncate)  |
+| `cvttsd2si` | double → int (truncate) |
+| `cvtss2sd`  | float → double          |
+| `cvtsd2ss`  | double → float          |
+
 
 ### Stack Operations
 
@@ -194,6 +243,7 @@ testq %rax, %rax         # compute rax & rax, set FLAGS — common idiom for "is
 | `b`    | 1 byte       | 8 bits      | `char`            |
 | `w`    | 2 bytes      | 16 bits     | `short`           |
 | `l`    | 4 bytes      | 32 bits     | `int`             |
+| `d`    | 4 bytes      | 32 bits     | `long` or pointer |
 | `q`    | 8 bytes      | 64 bits     | `long` or pointer |
 
 **Note:** `l` stands for "long" (32 bits on x86-64, historical naming). `q` stands for "quad" (quad-word, 64 bits).
