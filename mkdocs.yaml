@@ -20,6 +20,8 @@ nav:
       - Lecture 7 - Instruction set architecture: "lectures/Lecture7.md"
       - Lecture 8 - ISA-Procedures: "lectures/Lecture8.md"
       - Lecture 9 - ISA-Arrays: "lectures/Lecture9.md"
+      - Lecture 10 - Control Flow: "lectures/Lecture10.md"
+      - Lecture 11 - Exception Control Flow: "lectures/Lecture11.md"
   # - Code:
   #     - Storage Engines: 'code/storage_engines/README.md'
   #     - SSTable: 'https://github.com/Ankush-Chander/sorted-string-table-101'
