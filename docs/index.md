@@ -21,4 +21,6 @@ Welcome to the course on Computer Systems Programming.
 - [Lecture 9 - Arrays](lectures/Lecture9.md)
 - [Lecture 10 - Control Flow](lectures/Lecture10.md)
 - [Lecture 11 - Exception Control Flow](lectures/Lecture11.md)
+- [Lecture 12 - Process management](lectures/Lecture12.md)
+- [Lecture 13 - Signal handling](lectures/Lecture13.md)
 ---

@@ -22,6 +22,8 @@ nav:
       - Lecture 9 - ISA-Arrays: "lectures/Lecture9.md"
       - Lecture 10 - Control Flow: "lectures/Lecture10.md"
       - Lecture 11 - Exception Control Flow: "lectures/Lecture11.md"
+      - Lecture 12 - Process Management: "lectures/Lecture12.md"
+      - Lecture 13 - Signal Handling: "lectures/Lecture13.md"
   # - Code:
   #     - Storage Engines: 'code/storage_engines/README.md'
   #     - SSTable: 'https://github.com/Ankush-Chander/sorted-string-table-101'
