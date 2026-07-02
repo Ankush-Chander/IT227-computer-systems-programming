@@ -2,6 +2,29 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <termios.h>
+
+int is_process_in_foreground(void) {
+    // 1. Ensure stdin is actually connected to a terminal
+    if (!isatty(STDIN_FILENO)) {
+        fprintf(stderr, "Not attached to a terminal\n");
+        return -1; // Indeterminate
+    }
+
+    pid_t my_pgid = getpgrp();
+    if (my_pgid == -1) {
+        perror("getpgrp");
+        return -1;
+    }
+
+    pid_t fg_pgid = tcgetpgrp(STDIN_FILENO);
+    if (fg_pgid == -1) {
+        perror("tcgetpgrp");
+        return -1;
+    }
+
+    return (my_pgid == fg_pgid) ? 1 : 0; // 1=foreground, 0=background/stopped
+}
 
 void handler(int sig)
 {
@@ -38,18 +61,11 @@ int main(int argc, char *argv[])
     signal(SIGINT, handler);
     signal(SIGTSTP, handler);
 
-    pid_t fg = tcgetpgrp(STDIN_FILENO);
-    // printf("Foreground# %d  PGID = %d\n", instance, fg);
-    printf("Instance %d,  PID = %d, PGID = %d\n", instance, getpid(), fg);
-
-    printf("Stopping...\n");
-
-    printf("I'm back!\n");
-
     while (1)
     {
-        pid_t fg = tcgetpgrp(STDIN_FILENO);
-        if (fg == getpgrp())
+        pid_t fg = getpgrp();
+        // getpgrp: Get the process group ID of the calling process.
+        if (is_process_in_foreground())
         {
             printf("foreground: Instance %d,  PID = %d, PGID = %d\n", instance, getpid(), fg);
         }

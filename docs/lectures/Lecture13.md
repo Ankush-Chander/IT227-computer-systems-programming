@@ -87,11 +87,36 @@ In case of user-defined signal handlers:
 
 ---
 
-## Process Groups
+## Background/foreground processes
+
+### 1. Foreground Process
+- **Definition**: A process (or job) that is actively attached to the controlling terminal. It receives keyboard input, displays output directly to the terminal, and blocks the shell until it exits.
+- **Behavior**: Only **one process group** can be in the foreground per terminal. ==Signals like `SIGINT` (`Ctrl+C`) and `SIGTSTP` (`Ctrl+Z`) are delivered by the terminal driver to the entire foreground process group.==
+
+### 2. Background Process
+- **Definition**: A process that runs concurrently with the shell without occupying the terminal for interactive I/O. Created by appending `&` or moved there via `bg`.
+- **Behavior**: Does not receive control signals from the keyboard. May still write to stdout/stderr (which often interleave with shell output), but attempting to read from the terminal while in the background typically results in a `SIGTTIN` signal, suspending the process.
+
+### 3. Stopped Process
+- **Definition**: A process whose execution is suspended by the kernel. It retains all memory, file descriptors, and registers, but is not scheduled for CPU time.
+- **Triggers**: 
+  - `SIGTSTP` (usually from `Ctrl+Z`) → user-initiated stop
+  - `SIGSTOP` → unblockable stop (e.g., via `kill -STOP <pid>`)
+- **Resumption**: Requires `SIGCONT`, sent by the shell via `fg` or `bg`.
+
+### Associated Bash Commands
+| Command           | Behavior                                         | Signal/Action                                                                                                                |
+| ----------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `fg [jobspec]`    | Moves a stopped/background job to the foreground | Sends `SIGCONT`, waits for completion, restores terminal interaction                                                         |
+| `bg [jobspec]`    | Resumes a stopped job in the background          | Sends `SIGCONT`, returns control to shell immediately                                                                        |
+| `nohup command &` | Runs a command immune to terminal hangup         | Ignores `SIGHUP`, redirects stdout/stderr to `nohup.out` if not already redirected, detaches from terminal session lifecycle |
+
+
+### Process Groups
 
 A **process group** is a collection of related processes that can receive signals together.
 
-### Properties
+**Properties**
 
 * Every process belongs to **exactly one** process group.
 * Each process group has a **Process Group ID (PGID)**.
@@ -113,7 +138,7 @@ ps -o pid,ppid,pgid,stat,cmd
 # 132863   13858  132863 R+   ps -o pid,ppid,pgid,stat,cmd
 ```
 
-### APIs
+**APIs**
 
 | Function             | Purpose                                 |
 | -------------------- | --------------------------------------- |
@@ -127,6 +152,13 @@ setpgid(0, 0);
 ```
 
 Creates a new process group whose PGID equals the calling process's PID and makes the calling process its leader.
+
+### Common Points of Confusion
+1. **Execution State vs Terminal State**  
+   Processes in the same foreground process group can have different *scheduler states*: one might be `RUNNING`, another `SLEEPING` (waiting for I/O), and another `STOPPED` (if individually sent a signal). But their **terminal association** (foreground/background) is identical.
+
+2. **Pipes & Subshells**  
+   In `grep pattern log.txt | sort`, both `grep` and `sort` live in the same process group. When you run this command, **both are foregrounded**. The shell sets the shared PGID as foreground via `tcsetpgrp()`.
 
 ---
 
