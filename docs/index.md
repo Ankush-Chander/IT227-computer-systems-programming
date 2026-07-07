@@ -23,4 +23,6 @@ Welcome to the course on Computer Systems Programming.
 - [Lecture 11 - Exception Control Flow](lectures/Lecture11.md)
 - [Lecture 12 - Process management](lectures/Lecture12.md)
 - [Lecture 13 - Signal handling](lectures/Lecture13.md)
+- [Lecture 14 - Process control](lectures/Lecture14.md)
+- [Lecture 15 - Inter process communication](lectures/Lecture15.md)
 ---

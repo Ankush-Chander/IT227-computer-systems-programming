@@ -138,9 +138,9 @@ Instead:
 
 - The child stops executing.
 - Most of its resources are released:
-  - Virtual memory
-  - Open file descriptors
-  - Other kernel resources
+    - Virtual memory
+    - Open file descriptors
+    - Other kernel resources
 - However, **its process table entry is intentionally retained**.
 
 The kernel preserves this entry so that the parent can later retrieve information such as:
@@ -215,12 +215,37 @@ See:
 ../code/process_control/reap_demo2.c
 ```
 
+## Loading and Running Programs
+The execve function loads and runs a new program in the context of the current process.
+```c
+#include <unistd.h>
+int execve(const char *filename, const char *argv[],
+const char *envp[]);
+//  Does not return if OK, returns `-1` on error
+```
+![execve](../images/process_control/execv_arguments.png)
+Source: CSAPP 
+
+```c
+#include <stdlib.h>
+char *getenv(const char *name);
+    Returns: ptr to name if exists, NULL if no match
+
+int setenv(const char *name, const char *newvalue, int overwrite);
+    Returns: 0 on success, −1 on error
+
+void unsetenv(const char *name);
+    Returns: nothing
+```
+
+![execve](../images/process_control/env_var_organization.png)
+Source: CSAPP 
 
 
+![execve](../images/process_control/env_var_stack_frame.png)
 <!--
 
 ### Putting Processes to Sleep
 
-### Loading and Running Programs
 
 ### Using fork and execve to Run Programs-->

@@ -25,6 +25,7 @@ nav:
       - Lecture 12 - Process Management: "lectures/Lecture12.md"
       - Lecture 13 - Signal Handling: "lectures/Lecture13.md"
       - Lecture 14 - Process Control: "lectures/Lecture14.md"
+      - Lecture 15 - Inter Process Communication: "lectures/Lecture15.md"
   # - Code:
   #     - Storage Engines: 'code/storage_engines/README.md'
   #     - SSTable: 'https://github.com/Ankush-Chander/sorted-string-table-101'
