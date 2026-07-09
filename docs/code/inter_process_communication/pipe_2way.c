@@ -26,10 +26,12 @@ int main() {
         // 1. Read message from Parent
         char recv_buf[1024] = {0};
         ssize_t n = read(p2c[0], recv_buf, sizeof(recv_buf));
-        if (n > 0) printf("Child %d received: %s\n", getpid(), recv_buf);
+        if (n > 0){
+            printf("Child %d received: %s\n", getpid(), recv_buf);
+        }
 
         // Simulate some work before replying
-        sleep(1); 
+        sleep(1);
 
         // 2. Send reply back to Parent
         const char *reply = "Hello from child!";

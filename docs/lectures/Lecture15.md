@@ -15,6 +15,9 @@ Communication facilities allow processes to exchange information. They fall into
 Data is explicitly written by one process and read by another. This requires **two data transfers** per message: 
 `User Memory → Kernel Memory (write) → User Memory (read)`  
 
+![](../images/ipc/data_transfer.png)
+
+
 | Subcategory | Description | Examples |  
 | :--- | :--- | :--- |  
 | **Byte Stream** | Data is an undelimited sequence of bytes. Reads can fetch arbitrary amounts regardless of write block sizes. Mirrors the UNIX "file as a sequence of bytes" model. | Pipes, FIFOs, Datagram Sockets |  
@@ -88,16 +91,13 @@ int pipe(int filedes[2]);
     Returns 0 on success, or –1  
 ```  
 
-How are pipes created and used?  
-Who manages the pipes and syncronization around pipes?  
-How can i recreate something like a pipe myself?  
 ![](../images/ipc/pipe_fork_scenario.png)  
 
 
 ---  
 
 
-1. Pipe Anatomy  
+### Pipe Anatomy  
 A pipe is a **unidirectional** channel in the kernel's memory. It is created using `pipe(int fd[2])`, which returns two file descriptors:  
 
 | Descriptor | Direction | Purpose |  
@@ -180,6 +180,130 @@ while ((n = read(fd, buf, 1)) == -1 && errno == EINTR) {
 }  
 // Now n is either >0 (success) or 0 (EOF)  
 ```  
+
+### Talking to a Shell Command via a Pipe
+
+Refer to `docs/code/inter_process_communication/generic_pipe.c`
+
+#### dup2
+dup2() is a system call in C that duplicates an existing file descriptor, allowing you to redirect output or input to a different file descriptor.
+
+Prototype:
+
+```c
+int dup2(int oldfd, int newfd);
+```
+
+Meaning:
+
+> Make `newfd` refer to the same open file description as `oldfd`.
+
+Example:
+
+```c
+dup2(pipefd[1], STDOUT_FILENO);
+```
+
+After this:
+
+```
+Before
+
+stdout (1)
+    |
+    v
+ Terminal
+
+After dup2()
+
+stdout (1)
+    |
+    v
+pipe write end
+```
+
+Now every
+
+```c
+printf(...)
+```
+
+actually writes into the pipe.
+
+---
+
+**Example**
+
+```c
+int fd[2];
+pipe(fd);
+
+dup2(fd[1], STDOUT_FILENO);
+
+printf("Hello");
+```
+
+Equivalent to
+
+```c
+write(fd[1], "Hello", 5);
+```
+
+without changing any application code.
+
+---
+
+**Why close() is Important**
+
+After duplicating,
+
+```c
+dup2(fd[1], STDOUT_FILENO);
+```
+
+there are now **two descriptors** referring to the same pipe.
+
+```
+fd[1]
+   \
+    \
+stdout(1)
+      \
+       \
+     Pipe
+```
+
+The original descriptor is unnecessary.
+
+So we close it.
+
+```c
+close(fd[1]);
+```
+
+stdout still works because descriptor 1 remains open.
+
+---
+
+#### popen
+The popen() function creates a pipe, and then forks a child process that execs a
+shell, which in turn creates a child process to execute the string given in command.
+The mode argument is a string that determines whether the calling process will read
+from the pipe (mode is r) or write to it (mode is w). 
+
+```c
+#include <stdio.h>
+FILE *popen(const char *command, const char *mode);
+Returns file stream, or NULL on error
+
+int pclose(FILE *stream);
+Returns termination status of child process, or –1 on error
+```
+
+![](../images/ipc/popen_functioning.png)
+
+Refer to `docs/code/inter_process_communication/sleak_pipe.c`
+
 
 ## References  
 - Chapter 43, Linux Programming Interface, Michael Kerrisk  

@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,15 +38,21 @@ int main(void)
     /* Self-documenting aliases for waitpid arguments */
     const pid_t WAIT_FOR_ANY_CHILD  = -1;   /* which child to reap (wildcard) */
     const int   WAIT_BLOCKING       = 0;    /* how to wait (block until one dies) */
+    pid_t ppid = getppid();
 
     /* Parent creates N children */
     for (i = 0; i < N; i++)
         if ((pid = Fork()) == 0){ /* Child */
             pid_t cid = getpid();
+            printf("child: %d",cid);
              sleep(2 + i);
              pid_t ppid = getppid();
              printf("child:%d with parent %d exiting with status: %d\n", cid, ppid, 100+i);
              exit(100 + i);
+        }else{
+            if (pid%2==0){
+                kill(pid, SIGINT);
+            }
         }
     /* Parent reaps N children in no particular order */
     // "Block until any child dies, then tell me which one and why."
@@ -63,6 +70,7 @@ int main(void)
     /* The only normal termination is if there are no more children */
     // if (errno != ECHILD)
     //     unix_error("waitpid error");
+    sleep(5);
     printf("Parent %d terminated normally", myid);
     exit(0);
 }

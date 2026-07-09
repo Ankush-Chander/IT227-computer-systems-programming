@@ -22,7 +22,7 @@ void handler(int sig)
         // kill all children
         for (int i = 0; i < N; i++){
             printf("killing child %d\n", children[i]);
-            kill(children[i], SIGTERM);
+            kill(children[i], SIGINT);
         }
         printf("Signal name: SIGINT\n");
         break;
